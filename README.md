@@ -9,7 +9,12 @@ Skills são instruções especializadas que ensinam o Opencode a executar tarefa
 ```
 opencode-skills/
 ├── skills/              # Skills organizadas por pasta
-│   └── ...              # Adicione novas skills aqui
+│   ├── business-rules/
+│   ├── crisp-dm-dev-standards/
+│   ├── doc-generator/
+│   ├── lgpd-scanner/
+│   ├── project-scanner/
+│   └── windows-protection/
 ├── config/              # Arquivos de configuração do Opencode
 ├── scripts/             # Utilitários de instalação e manutenção
 └── README.md
@@ -18,6 +23,13 @@ opencode-skills/
 ## Skills disponíveis
 
 | Skill | Descrição |
+|-------|-----------|
+| [business-rules](skills/business-rules/) | Extrai regras de negócio de projetos em formato IF/THEN |
+| [crisp-dm-dev-standards](skills/crisp-dm-dev-standards/) | Padrões de desenvolvimento CRISP-DM, PEP 8, Clean Code |
+| [doc-generator](skills/doc-generator/) | Gera documentação HTML/PDF a partir de relatórios JSON |
+| [lgpd-scanner](skills/lgpd-scanner/) | Scanner de conformidade LGPD/GDPR em projetos |
+| [project-scanner](skills/project-scanner/) | Mapeia estrutura, linguagens e arquitetura de projetos |
+| [windows-protection](skills/windows-protection/) | Protege arquivos do sistema Windows contra modificação |
 
 ## Como instalar em uma máquina nova
 
