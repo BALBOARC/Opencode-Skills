@@ -9,7 +9,6 @@ Skills são instruções especializadas que ensinam o Opencode a executar tarefa
 ```
 opencode-skills/
 ├── skills/              # Skills organizadas por pasta
-│   ├── business-analyzer/
 │   └── ...              # Adicione novas skills aqui
 ├── config/              # Arquivos de configuração do Opencode
 ├── scripts/             # Utilitários de instalação e manutenção
@@ -19,8 +18,6 @@ opencode-skills/
 ## Skills disponíveis
 
 | Skill | Descrição |
-|-------|-----------|
-| [business-analyzer](skills/business-analyzer/) | Analisa projetos, extrai regras de negócio e gera documentação técnica em PDF |
 
 ## Como instalar em uma máquina nova
 
