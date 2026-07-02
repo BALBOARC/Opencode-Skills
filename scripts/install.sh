@@ -23,6 +23,14 @@ for skill_dir in "$SKILLS_SRC"/*/; do
         echo "  → Instalando skill: $skill_name"
         mkdir -p "$SKILLS_DEST/$skill_name"
         cp "$skill_dir/SKILL.md" "$SKILLS_DEST/$skill_name/SKILL.md"
+
+        # Copia scripts auxiliares (.sh) da skill, se houver
+        for script in "$skill_dir"/*.sh; do
+            if [ -f "$script" ]; then
+                cp "$script" "$SKILLS_DEST/$skill_name/"
+                chmod +x "$SKILLS_DEST/$skill_name/$(basename "$script")"
+            fi
+        done
     fi
 done
 

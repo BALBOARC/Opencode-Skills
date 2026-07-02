@@ -13,6 +13,7 @@ opencode-skills/
 │   ├── crisp-dm-dev-standards/
 │   ├── doc-generator/
 │   ├── lgpd-scanner/
+│   ├── opencode-output-path/
 │   ├── project-scanner/
 │   └── windows-protection/
 ├── config/              # Arquivos de configuração do Opencode
@@ -28,6 +29,7 @@ opencode-skills/
 | [crisp-dm-dev-standards](skills/crisp-dm-dev-standards/) | Padrões de desenvolvimento CRISP-DM, PEP 8, Clean Code |
 | [doc-generator](skills/doc-generator/) | Gera documentação HTML/PDF a partir de relatórios JSON |
 | [lgpd-scanner](skills/lgpd-scanner/) | Scanner de conformidade LGPD/GDPR em projetos |
+| [opencode-output-path](skills/opencode-output-path/) | Define D:\Opencode\ como diretório padrão para todas as saídas do opencode |
 | [project-scanner](skills/project-scanner/) | Mapeia estrutura, linguagens e arquitetura de projetos |
 | [windows-protection](skills/windows-protection/) | Protege arquivos do sistema Windows contra modificação |
 
