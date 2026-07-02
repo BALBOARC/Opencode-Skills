@@ -1,6 +1,65 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "model": "opencode/big-pickle",
+  "permission": {
+    "read": {
+      "*": "allow",
+      "~/.ssh/*": "deny",
+      "~/.config/gh/*": "deny",
+      "~/.aws/*": "deny",
+      "~/.azure/*": "deny",
+      "~/.netrc": "deny",
+      "~/.git-credentials": "deny",
+      "~/Downloads/recovery-codes*": "deny",
+      "~/*.pem": "deny",
+      "~/*.key": "deny"
+    },
+    "bash": {
+      "*": "ask",
+      "cat ~/.ssh/*": "deny",
+      "cat ~/.config/gh/*": "deny",
+      "cat ~/.aws/*": "deny",
+      "cat ~/.netrc": "deny",
+      "cat ~/.git-credentials": "deny",
+      "cat ~/Downloads/recovery-codes*": "deny",
+      "cat ~/*.pem": "deny",
+      "cat ~/*.key": "deny",
+      "git *": "allow",
+      "grep *": "allow",
+      "ls *": "allow",
+      "find *": "allow",
+      "npm *": "allow",
+      "node *": "allow",
+      "perl *": "allow",
+      "openssl *": "allow",
+      "which *": "allow",
+      "mkdir *": "allow",
+      "chmod *": "allow",
+      "rm *": "allow",
+      "head *": "allow",
+      "tail *": "allow",
+      "cat *": "allow",
+      "echo *": "ask",
+      "printf *": "ask"
+    },
+    "external_directory": {
+      "*": "ask",
+      "~/.ssh/**": "deny",
+      "~/.config/gh/**": "deny",
+      "~/.aws/**": "deny",
+      "~/.azure/**": "deny",
+      "~/.netrc": "deny",
+      "~/.git-credentials": "deny",
+      "~/Downloads/recovery-codes*": "deny",
+      "~/*.pem": "deny",
+      "~/*.key": "deny",
+      "~/.config/opencode/skills/sensitive-data-guard/key/**": "deny"
+    },
+    "skill": {
+      "*": "ask",
+      "sensitive-data-guard": "allow"
+    }
+  },
   "skills": {
     "paths": ["~/.config/opencode/skills"]
   }

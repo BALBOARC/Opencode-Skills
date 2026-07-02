@@ -1,0 +1,8 @@
+# Allowlist — valores que NÃO devem ser criptografados
+# Um valor por linha. O match é exato (case-insensitive).
+# Exemplos:
+# test
+# 123
+# admin
+# fake
+# example

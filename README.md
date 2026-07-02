@@ -10,6 +10,7 @@ Skills são instruções especializadas que ensinam o Opencode a executar tarefa
 opencode-skills/
 ├── skills/              # Skills organizadas por pasta
 │   ├── business-analyzer/
+│   ├── sensitive-data-guard/
 │   └── ...              # Adicione novas skills aqui
 ├── config/              # Arquivos de configuração do Opencode
 ├── scripts/             # Utilitários de instalação e manutenção
@@ -21,6 +22,7 @@ opencode-skills/
 | Skill | Descrição |
 |-------|-----------|
 | [business-analyzer](skills/business-analyzer/) | Analisa projetos, extrai regras de negócio e gera documentação técnica em PDF |
+| [sensitive-data-guard](skills/sensitive-data-guard/) | Protege dados sensíveis contra exposição ao modelo de IA com criptografia AES-256-CBC |
 
 ## Como instalar em uma máquina nova
 
@@ -32,7 +34,7 @@ git clone git@github.com:BALBOARC/Opencode-Skills.git ~/Opencode-Skills
 bash ~/Opencode-Skills/scripts/install.sh
 ```
 
-O instalador cria os diretórios e copia as skills para o local correto (`~/.config/opencode/skills/`).
+O instalador cria os diretórios, copia as skills e scripts para o local correto (`~/.config/opencode/skills/`), e gera a chave de criptografia automaticamente.
 
 ## Como criar uma nova skill
 
