@@ -36,18 +36,21 @@ Nunca faz push direto na `main`. Sempre cria uma branch a partir da mensagem do 
 ## Fluxo
 
 ```bash
-# 1. Verificar mudanças não commitadas
+# 1. Verificar se há mudanças não commitadas
 git status
 
-# 2. Se houver mudanças, stage + commit (obrigatório Conventional Commits)
+# 2. Stages as alterações (sem commit ainda)
 git add -A
-# Exemplo: git commit -m "feat: adiciona login com Google"
-git commit -m "<tipo>: <descrição>"
 
-# 3. Extrair tipo e descrição do último commit
-MSG=$(git log -1 --pretty=%s)
+# 3. Extrair tipo e descrição da mensagem fornecida pelo usuário
+#    O usuário informa: "<tipo>: <descrição>"
+#    Exemplo: "feat: adiciona login com Google"
+# O agente deve construir a mensagem no formato:
+# "<tipo>: <descrição curta>"
+# Exemplo: "feat: adiciona login com Google"
+MSG="<tipo>: <descrição>"  # substituir pelos valores reais
 
-# Extrai o tipo (antes de ":" e ": ") e descrição (depois de ": ")
+# Extrai tipo e descrição
 if echo "$MSG" | grep -qE '^(feat|fix|chore|docs|refactor|test|perf|style|ci)(\(.+\))?: '; then
   TIPO=$(echo "$MSG" | sed -nE 's/^([a-z]+).*: .*/\1/p')
   DESCRICAO=$(echo "$MSG" | sed -nE 's/^[a-z]+(\(.+\))?: //p')
@@ -56,7 +59,7 @@ else
   DESCRICAO="$MSG"
 fi
 
-# Mapeia tipo para prefixo
+# Mapeia tipo para prefixo da branch
 case "$TIPO" in
   feat)     PREFIXO="feature" ;;
   fix)      PREFIXO="fix" ;;
@@ -70,7 +73,7 @@ case "$TIPO" in
   *)        PREFIXO="feature" ;;
 esac
 
-# Pega as 4 primeiras palavras da descrição
+# Pega as 4 primeiras palavras da descrição para o nome da branch
 SHORT=$(echo "$DESCRICAO" | awk '{for(i=1;i<=NF&&i<=4;i++) printf "%s%s", (i>1?FS:""), $i; print ""}')
 
 # Sanitiza para nome de branch
@@ -88,18 +91,26 @@ NOME=$(echo "$SHORT" \
 
 BRANCH="${PREFIXO}/${NOME}"
 
-# 4. Atualizar main e criar branch a partir dela
+# 4. Verificar se a branch já existe
+if git ls-remote --exit-code origin "$BRANCH" > /dev/null 2>&1; then
+  echo "✗ Branch '$BRANCH' já existe no remote."
+  echo "  Escolha um nome diferente ou faça o commit em outra branch."
+  exit 1
+fi
+
+# 5. Atualizar main e criar branch a partir dela
 git switch main
 git pull origin main --rebase
 
-# 5. Criar branch e aplicar o commit
+# 6. Criar branch e fazer o commit nela
 git switch -c "$BRANCH"
+git commit -m "$MSG"
 git push -u origin "$BRANCH"
 
-# 6. Voltar para main
+# 7. Voltar para main
 git switch main
 
-# 7. Informar o usuário
+# 8. Informar o usuário
 echo "✓ Commit : $MSG"
 echo "✓ Branch : $BRANCH"
 echo "✓ Push   : origin/$BRANCH"
