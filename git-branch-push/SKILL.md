@@ -1,20 +1,37 @@
 ---
 name: git-branch-push
 description: >
-  Use when the user wants to commit and push to GitHub, creating a new branch instead of pushing directly to main. Extracts a short branch name from the first words of the commit message, prefixing with feature/. Activates on "subir", "push", "commit", "enviar para git", "github", "enviar pro github", "subir pro github".
+  Use when the user wants to commit and push to GitHub, creating a new branch instead of pushing directly to main. Parses conventional commit messages (feat:, fix:, chore:, docs:, refactor:, test:, perf:) to determine the branch prefix. Defaults to feature/ when no prefix is detected. Activates on "subir", "push", "commit", "enviar para git", "github", "enviar pro github", "subir pro github".
 ---
 
 # Git Branch Push
 
-Nunca faz push direto na `main`. Sempre cria uma branch `feature/{descricao}` curta extraída do início da mensagem do último commit. O texto completo fica no commit, não no nome da branch.
+Nunca faz push direto na `main`. Sempre cria uma branch a partir da mensagem do último commit, seguindo **Conventional Commits** e boas práticas de Git.
 
 ## Regras
 
 - **NUNCA** faça push para `main` ou `master`
-- **SEMPRE** crie uma branch nova com prefixo `feature/`
-- O nome da branch usa **apenas as primeiras 3-4 palavras** da mensagem do commit
-- Acentos são convertidos para vogais sem acento (á→a, ç→c, é→e, etc.)
-- Após o push, informe o usuário com o nome da branch e o comando para abrir PR
+- **SEMPRE** crie uma branch nova
+- O commit **DEVE** seguir o formato Conventional Commits: `tipo: descrição`
+- O prefixo da branch é extraído do `tipo` do commit
+- O nome da branch usa **apenas as 3-4 primeiras palavras** da `descrição` (após o `:`)
+- Acentos são convertidos (á→a, ç→c, é→e)
+- Branch em **minúsculas**, palavras separadas por hífen
+
+### Mapeamento tipo → prefixo da branch
+
+| Commit | Prefixo da branch |
+|---|---|
+| `feat:` | `feature/` |
+| `fix:` | `fix/` |
+| `chore:` | `chore/` |
+| `docs:` | `docs/` |
+| `refactor:` | `refactor/` |
+| `test:` | `test/` |
+| `perf:` | `perf/` |
+| `style:` | `style/` |
+| `ci:` | `ci/` |
+| Outros / sem tipo | `feature/` |
 
 ## Fluxo
 
@@ -22,16 +39,42 @@ Nunca faz push direto na `main`. Sempre cria uma branch `feature/{descricao}` cu
 # 1. Verificar mudanças não commitadas
 git status
 
-# 2. Se houver mudanças, perguntar se quer stage+commit
+# 2. Se houver mudanças, stage + commit (obrigatório Conventional Commits)
 git add -A
-git commit -m "<mensagem do usuário>"
+# Exemplo: git commit -m "feat: adiciona login com Google"
+git commit -m "<tipo>: <descrição>"
 
-# 3. Extrair as primeiras 4 palavras do último commit
+# 3. Extrair tipo e descrição do último commit
 MSG=$(git log -1 --pretty=%s)
-SHORT=$(echo "$MSG" | awk '{for(i=1;i<=NF&&i<=4;i++) printf "%s%s", (i>1?FS:""), $i; print ""}')
 
-# 4. Sanitizar para nome de branch
-BRANCH="feature/$(echo "$SHORT" \
+# Extrai o tipo (antes de ":" e ": ") e descrição (depois de ": ")
+if echo "$MSG" | grep -qE '^(feat|fix|chore|docs|refactor|test|perf|style|ci)(\(.+\))?: '; then
+  TIPO=$(echo "$MSG" | sed -nE 's/^([a-z]+).*: .*/\1/p')
+  DESCRICAO=$(echo "$MSG" | sed -nE 's/^[a-z]+(\(.+\))?: //p')
+else
+  TIPO="feature"
+  DESCRICAO="$MSG"
+fi
+
+# Mapeia tipo para prefixo
+case "$TIPO" in
+  feat)     PREFIXO="feature" ;;
+  fix)      PREFIXO="fix" ;;
+  chore)    PREFIXO="chore" ;;
+  docs)     PREFIXO="docs" ;;
+  refactor) PREFIXO="refactor" ;;
+  test)     PREFIXO="test" ;;
+  perf)     PREFIXO="perf" ;;
+  style)    PREFIXO="style" ;;
+  ci)       PREFIXO="ci" ;;
+  *)        PREFIXO="feature" ;;
+esac
+
+# Pega as 4 primeiras palavras da descrição
+SHORT=$(echo "$DESCRICAO" | awk '{for(i=1;i<=NF&&i<=4;i++) printf "%s%s", (i>1?FS:""), $i; print ""}')
+
+# Sanitiza para nome de branch
+NOME=$(echo "$SHORT" \
   | tr '[:upper:]' '[:lower:]' \
   | sed 's/á/a/g; s/à/a/g; s/â/a/g; s/ã/a/g' \
   | sed 's/é/e/g; s/ê/e/g' \
@@ -41,39 +84,54 @@ BRANCH="feature/$(echo "$SHORT" \
   | sed 's/ç/c/g' \
   | sed 's/[^a-z0-9 -]//g' \
   | sed 's/ /-/g; s/--*/-/g; s/^-//; s/-$//' \
-  | head -c 60)"
+  | head -c 60)
 
-# 5. Garantir que está na main e atualizar antes de criar branch
-git checkout main
-git pull origin main
+BRANCH="${PREFIXO}/${NOME}"
 
-# 6. Criar e fazer push da branch
-git checkout -b "$BRANCH"
+# 4. Atualizar main e criar branch a partir dela
+git switch main
+git pull origin main --rebase
+
+# 5. Criar branch e aplicar o commit
+git switch -c "$BRANCH"
 git push -u origin "$BRANCH"
 
-# 7. Voltar para main
-git checkout main
+# 6. Voltar para main
+git switch main
 
-# 8. Informar o usuário
-echo "✓ Branch criada: $BRANCH"
-echo "✓ Push realizado para origin/$BRANCH"
+# 7. Informar o usuário
+echo "✓ Commit : $MSG"
+echo "✓ Branch : $BRANCH"
+echo "✓ Push   : origin/$BRANCH"
 echo ""
-echo "Para abrir um PR no GitHub:"
+echo "Para abrir PR:"
 echo "  gh pr create --fill"
 ```
 
-## Exemplo
+## Exemplos
 
 ```
-$ git commit -m "Adiciona versionamento automático nas skills de análise"
-→ branch: feature/adiciona-versionamento-automatico-nas
+$ git commit -m "feat: adiciona login com Google OAuth"
+→ branch: feature/adiciona-login-com-google
 
-$ git commit -m "Corrige bug na validação de CPF do formulário"
-→ branch: feature/corrige-bug-na-validacao
+$ git commit -m "fix: corrige validação de CPF duplicado"
+→ branch: fix/corrige-validacao-de-cpf
+
+$ git commit -m "refactor: extrai camada de serviço de usuário"
+→ branch: refactor/extrai-camada-de-servico
+
+$ git commit -m "docs: atualiza README com instruções de setup"
+→ branch: docs/atualiza-readme-com-instrucoes
+
+$ git commit -m "chore: atualiza dependências do projeto"
+→ branch: chore/atualiza-dependencias-do-projeto
 ```
 
 ## Restrições
 
-- Se a branch `feature/...` já existir no remote, abortar e avisar o usuário
+- Se a branch já existir no remote, abortar e sugerir nome alternativo
 - Se o repositório não tiver remote `origin`, configurar antes do push
-- Sempre volta para `main` após o push
+- Sempre usa `git switch` (moderno) em vez de `git checkout`
+- Sempre faz `pull --rebase` para evitar merge commits desnecessários
+- Nunca usa `--force` ou `--force-with-lease` — branch é sempre nova
+- Volta para `main` após o push
